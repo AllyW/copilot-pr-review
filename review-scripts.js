@@ -73,7 +73,12 @@ for (let i = 0; i < changedFiles.length; i++) {
 }
 
 
-const sumPrompt = 'Below is the whole changed content from a github pull requests, please draw a summary of this pr with no more than 100 words'
+const sumPrompt = `Below is the whole changed content from a github pull requests, please draw a summary of this pr with no more than 100 words. Please use the following format:
+PR Summary:
+1. balabala
+2. balabala
+...
+`
 const res = await chat(wholeChange, sumPrompt);
 
 if (!!res) {
