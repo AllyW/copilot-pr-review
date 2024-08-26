@@ -50,12 +50,9 @@ runs:
           pwd
           ls -a
           ls ../
-          ls .github
-          ls .github/actions/
           echo "job here"
           echo pr number: "$PR_NUMBER"
           echo pr repo: "$PR_REPO"
-          ls env/
           chmod +x env/bin/activate
           source env/bin/activate
       - name: Set up Node
@@ -70,3 +67,13 @@ runs:
           npm install @azure/openai
           npm install @octokit/rest
           node --version
+      - name: Run Scripts
+        shell: bash
+        env: 
+          GITHUB_ACTION_PATH: ${{ github.action_path }}
+        run: |
+          echo "$GITHUB_ACTION_PATH" >> $GITHUB_PATH
+      - name: PR Review
+        shell: bash
+        run: |
+          node review-scripts.js
