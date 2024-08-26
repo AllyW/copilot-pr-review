@@ -82,7 +82,7 @@ await octokit.pulls.createReviewComment({
     repo,
     pull_number: number,
     commit_id: commits[commits.length - 1].sha,
-    path: files[0].filename,
+    path: changedFiles[0].filename,
     body: res,
     position: 0,
 });
