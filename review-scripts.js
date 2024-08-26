@@ -11,14 +11,16 @@ const MAX_PATCH_COUNT = 500;
 
 const client = new OpenAIClient(endpoint, new AzureKeyCredential(apiKey));
 // send msg to chatgpt
-async function chat(patch) {
+async function chat(patch, prompt) {
   const { choices } = await client.getChatCompletions(model, [
     {
       role: "user",
-      content: `Below is the diff info of from a github pull requests, please make a simple code review, and find the places that can be refined, in a simple and concise way:
-        "${patch}"
-      `,
+      content: prompt
     },
+    {
+        role: "user",
+        content: patch,
+      },
   ]);
   return choices[0]?.message?.content;
 }
@@ -40,6 +42,8 @@ const { data } = await octokit.rest.repos.compareCommits({
 
 const { files: changedFiles, commits } = data;
 
+const pathPrompt = 'Below is the diff info from a github pull requests, please make a simple code review, and find the places that can be refined, in a simple and concise way'
+let wholeChange = ''
 for (let i = 0; i < changedFiles.length; i++) {
   const file = changedFiles[i];
   const patch = file.patch || "";
@@ -51,8 +55,9 @@ for (let i = 0; i < changedFiles.length; i++) {
   if (!patch || patch.length > MAX_PATCH_COUNT) {
     continue;
   }
+  wholeChange += patch + '\n';
 
-  const res = await chat(patch);
+  const res = await chat(patch, pathPrompt);
 
   if (!!res) {
     await octokit.pulls.createReviewComment({
@@ -66,3 +71,23 @@ for (let i = 0; i < changedFiles.length; i++) {
     });
   }
 }
+
+
+const sumPrompt = 'Below is the whole changed content from a github pull requests, please draw a summary of this pr with no more than 100 words'
+const res = await chat(wholeChange, sumPrompt);
+
+if (!!res) {
+await octokit.pulls.createReviewComment({
+    owner,
+    repo,
+    pull_number: number,
+    commit_id: commits[commits.length - 1].sha,
+    path: files[0].filename,
+    body: res,
+    position: 0,
+});
+}
+
+
+
+
