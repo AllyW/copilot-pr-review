@@ -50,10 +50,12 @@ runs:
           pwd
           ls
           ls ../
-          source .env/bin/activate
           echo "job here"
           echo pr number: "$PR_NUMBER"
           echo pr repo: "$PR_REPO"
+          ls env/
+          chmod +x env/bin/activate
+          source .env/bin/activate
       - name: Set up Node
         uses: actions/setup-node@v2
         with:
