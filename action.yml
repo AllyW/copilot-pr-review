@@ -55,6 +55,7 @@ runs:
         with:
           node-version: "21"
       - name: Install dependencies
+        shell: bash
         run: |
           npm install @azure/openai
           npm install @octokit/rest
