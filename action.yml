@@ -64,8 +64,6 @@ runs:
         run: |
           pwd
           ls
-          npm install @azure/openai
-          npm install @octokit/rest
           node --version
       - name: Run Scripts
         shell: bash
@@ -73,7 +71,10 @@ runs:
           GITHUB_ACTION_PATH: ${{ github.action_path }}
         run: |
           echo "$GITHUB_ACTION_PATH" >> $GITHUB_PATH
-      - name: PR Review
-        shell: bash
-        run: |
+          cd "$GITHUB_ACTION_PATH"
+          pwd
+          ls
+          npm install @azure/openai
+          npm install @octokit/rest
+          ls
           node review-scripts.js
