@@ -6,9 +6,16 @@ branding:
 inputs:
   AUTH_TOKEN:
     description: 'Token for using GitHub REST API'
-    required: true
+    default: ${{ github.token }}
+    required: false
   PR_URL:
     description: 'Pull request url'
+    required: true
+  APIKEY:
+    description: 'APIKEY'
+    required: true
+  ENDPOINT:
+    description: "ENDPOINT"
     required: true
 runs:
   using: "composite"
@@ -17,6 +24,11 @@ runs:
         uses: actions/setup-python@v3
         with:
            python-version: "3.11"
+      - name: Show Working Directory
+        shell: bash
+        run: |
+          pwd
+          ls
       - name: Set Up Env
         shell: bash
         run: | 
@@ -38,3 +50,12 @@ runs:
           echo "job here"
           echo pr number: "$PR_NUMBER"
           echo pr repo: "$PR_REPO"
+      - name: Set up Node
+        uses: actions/setup-node@v2
+        with:
+          node-version: "21"
+      - name: Install dependencies
+        run: |
+          npm install @azure/openai
+          npm install @octokit/rest
+          node --version
