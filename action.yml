@@ -33,6 +33,7 @@ runs:
         shell: bash
         run: | 
            set -ev
+           pwd
            python -m pip install --upgrade pip
            python -m venv env
            chmod +x env/bin/activate
@@ -45,8 +46,11 @@ runs:
           PR_NUMBER: ${{ github.event.pull_request.number }}
           PR_REPO: ${{ github.repository }}
         run: |
-          source .env/bin/activate
+          set -x
+          pwd
           ls
+          ls ../
+          source .env/bin/activate
           echo "job here"
           echo pr number: "$PR_NUMBER"
           echo pr repo: "$PR_REPO"
@@ -57,6 +61,8 @@ runs:
       - name: Install dependencies
         shell: bash
         run: |
+          pwd
+          ls
           npm install @azure/openai
           npm install @octokit/rest
           node --version
