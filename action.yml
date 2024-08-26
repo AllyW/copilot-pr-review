@@ -74,7 +74,6 @@ runs:
           cd "$GITHUB_ACTION_PATH"
           pwd
           ls
-          npm install @azure/openai
-          npm install @octokit/rest
+          npm install
           ls
           node review-scripts.js

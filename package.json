@@ -1,0 +1,12 @@
+{
+    "name": "copilot-pr-review",
+    "version": "0.1.0",
+    "description": "pr reviewer",
+    "type": "module",
+    "author": "AllyW",
+    "license": "MIT",
+    "dependencies": {
+        "@azure/openai": "^1.0.0-beta.12",
+        "@octokit/rest": "21.0.2"
+    }
+}
