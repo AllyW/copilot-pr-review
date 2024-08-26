@@ -48,14 +48,16 @@ runs:
         run: |
           set -x
           pwd
-          ls
+          ls -a
           ls ../
+          ls .github
+          ls .github/actions/
           echo "job here"
           echo pr number: "$PR_NUMBER"
           echo pr repo: "$PR_REPO"
           ls env/
           chmod +x env/bin/activate
-          source .env/bin/activate
+          source env/bin/activate
       - name: Set up Node
         uses: actions/setup-node@v2
         with:
