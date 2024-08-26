@@ -69,6 +69,11 @@ runs:
         shell: bash
         env: 
           GITHUB_ACTION_PATH: ${{ github.action_path }}
+          APIKEY: ${{ inputs.APIKEY }}
+          ENDPOINT: ${{ inputs.ENDPOINT }}
+          TOKEN: ${{ inputs.AUTH_TOKEN }}
+          REPO: ${{ github.repository }}
+          EVENT: ${{ toJson(github.event) }}
         run: |
           echo "$GITHUB_ACTION_PATH" >> $GITHUB_PATH
           cd "$GITHUB_ACTION_PATH"
