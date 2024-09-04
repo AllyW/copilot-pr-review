@@ -37,14 +37,22 @@ runs:
           ls
       - name: Set Up Env
         shell: bash
+        env:
+           GITHUB_ACTION_PATH: ${{ github.action_path }}
         run: | 
-           set -ev
-           pwd
-           python -m pip install --upgrade pip
-           python -m venv env
-           chmod +x env/bin/activate
-           source ./env/bin/activate
-           pip list -v
+          set -x
+          pwd
+          echo "$GITHUB_ACTION_PATH" >> $GITHUB_PATH
+          cd "$GITHUB_ACTION_PATH"
+          python -m pip install --upgrade pip
+          python -m venv env
+          chmod +x env/bin/activate
+          source ./env/bin/activate
+          pwd
+          ls
+          pip list -v
+          pip install -r requirements.txt
+          pip list
       - name: Run Code Review
         shell: bash
         env:
@@ -62,16 +70,11 @@ runs:
           set -x
           pwd
           ls -a
-          ls ../
-          echo "job here"
-          echo pr number: "$PR_NUMBER"
-          echo pr repo: "$PR_REPO"
-          chmod +x env/bin/activate
-          source env/bin/activate
-          echo "$GITHUB_ACTION_PATH" >> $GITHUB_PATH
           cd "$GITHUB_ACTION_PATH"
           pwd
           ls
-          pip install -r requirements.txt
-          pip list
+          source env/bin/activate
+          echo "job here"
+          echo pr number: "$PR_NUMBER"
+          echo pr repo: "$PR_REPO"
           python -m code_review --job review
