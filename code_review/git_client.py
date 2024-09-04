@@ -72,7 +72,7 @@ class GitClient(object):
                 "body": item["review_content"],
                 "position": item["position"]
             }
-            res = requests.post(pr_comment_url, data=payload, headers=headers)
+            res = requests.post(pr_comment_url, data=json.dumps(payload), headers=headers)
             logger.warning("pr comment result: {0}".format(res.text))
 
     def list_pr_comment(self):
