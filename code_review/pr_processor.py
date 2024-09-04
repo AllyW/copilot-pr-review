@@ -33,8 +33,8 @@ class PRProcessor(object):
         review_res = []
         for diff_item in pr_diffs["files"]:
             filename = diff_item["filename"]
-            patch = diff_item["patch"]
-            status = diff_item["status"]
+            patch = diff_item.get("patch", "")
+            status = diff_item.get("status", "")
             if status not in ["modified", "added"]:
                 continue
             if not patch or len(patch) > MAX_PATCH_LIMITATION:

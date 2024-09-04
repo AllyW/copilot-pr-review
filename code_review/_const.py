@@ -12,7 +12,7 @@ MODEL_SYSTEM_ROLE = "system"
 MODEL_USER_ROLE = "user"
 MODEL_ASSIST_ROLE = "assistant"
 
-MAX_PATCH_LIMITATION = 500
+MAX_PATCH_LIMITATION = 800
 
 PR_SUMMARY_PROMPT = """
 Below is the whole changed content from a github pull requests, please draw a summary of this pr with no more than 100 words. Please use the following format:
