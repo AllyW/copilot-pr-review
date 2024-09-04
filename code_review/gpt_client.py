@@ -60,5 +60,5 @@ class GptClient(object):
         if "choices" not in content or not content["choices"]:
             return None
         review_message = content["choices"][0]["message"]["content"]
-        logger.warning("Get gpt review message: {0}".format(review_message))
+        logger.info("gpt review message: {0}".format(review_message))
         return review_message

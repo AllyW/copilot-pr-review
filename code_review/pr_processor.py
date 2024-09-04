@@ -53,7 +53,7 @@ class PRProcessor(object):
                 "review_content": gpt_resp,
                 "position": len(patch.split("\n")) - 1
             }
-            logger.warning("review_item: {0}".format(json.dumps(review_item)))
+            logger.warning("code review_item: {0}".format(json.dumps(review_item)))
             review_res.append(review_item)
         self.git_manager.comment_pr(review_res)
 
@@ -73,6 +73,7 @@ class PRProcessor(object):
             "file_path": pr_diffs["files"][0]["filename"],
             "commit_id": commit_id,
             "review_content": gpt_resp,
-            "position": len(pr_diffs["files"][0]["patch"].split("\n")) - 1
+            "position": 0
         }
+        logger.warning("summary review_item: {0}".format(json.dumps(review_item)))
         self.git_manager.comment_pr([review_item])
