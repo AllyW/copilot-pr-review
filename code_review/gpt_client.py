@@ -57,7 +57,8 @@ class GptClient(object):
             messages=messages
         )
         content = json.loads(gpt_result.to_json())
-        logger.warning("Get gpt review message: ", content)
         if "choices" not in content or not content["choices"]:
             return None
-        return content["choices"][0]["message"]["content"]
+        review_message = content["choices"][0]["message"]["content"]
+        logger.warning("Get gpt review message: {0}".format(review_message))
+        return review_message

@@ -6,8 +6,10 @@
 import json
 import os
 import requests
+import logging
 from code_review._exceptions import InvalidGitTokenMissingException, OtherConfigMissingException
 
+logger = logging.getLogger(__name__)
 PR_COMMENTS_URL_TEMPLATE = "https://api.github.com/repos/{0}/{1}/pulls/{2}/comments"
 PR_DIFF_URL_TEMPLATE = "https://api.github.com/repos/{0}/{1}/compare/{2}...{3}"
 
@@ -71,7 +73,7 @@ class GitClient(object):
                 "position": item["position"]
             }
             res = requests.post(pr_comment_url, data=payload, headers=headers)
-            print(res)
+            logger.warning("pr comment result: {0}".format(res.text))
 
     def list_pr_comment(self):
         pass

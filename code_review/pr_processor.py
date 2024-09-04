@@ -3,6 +3,7 @@
 # Licensed under the MIT License. See License.txt in the project root for
 # license information.
 # -----------------------------------------------------------------------------
+import json
 import os
 import logging
 from code_review.git_client import GitClient
@@ -52,7 +53,7 @@ class PRProcessor(object):
                 "review_content": gpt_resp,
                 "position": len(patch.split("\n")) - 1
             }
-            logger.warning("review_item: ", review_item)
+            logger.warning("review_item: {0}".format(json.dumps(review_item)))
             review_res.append(review_item)
         self.git_manager.comment_pr(review_res)
 
