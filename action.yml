@@ -72,6 +72,6 @@ runs:
           cd "$GITHUB_ACTION_PATH"
           pwd
           ls
-          pip install
+          pip install -r requirements.txt
           pip list
           python -m code_review --job review
