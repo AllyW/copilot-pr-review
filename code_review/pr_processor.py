@@ -52,6 +52,7 @@ class PRProcessor(object):
                 "review_content": gpt_resp,
                 "position": len(patch.split("\n")) - 1
             }
+            logger.warning("review_item: ", review_item)
             review_res.append(review_item)
         self.git_manager.comment_pr(review_res)
 
@@ -62,7 +63,7 @@ class PRProcessor(object):
         pr_contents = [diff_item["patch"] for diff_item in pr_diffs["files"]]
         messages = []
         format_gpt_message(messages, [PR_SUMMARY_PROMPT], role=MODEL_USER_ROLE)
-        format_gpt_message(messages, [pr_contents.join("\n")], role=MODEL_USER_ROLE)
+        format_gpt_message(messages, ["\n".join(pr_contents)], role=MODEL_USER_ROLE)
 
         gpt_resp = self.gpt_manager.request_gpt(messages)
         if not gpt_resp:
@@ -71,6 +72,6 @@ class PRProcessor(object):
             "file_path": pr_diffs["files"][0]["filename"],
             "commit_id": commit_id,
             "review_content": gpt_resp,
-            "position": 0
+            "position": len(pr_diffs["files"][0]["patch"].split("\n")) - 1
         }
         self.git_manager.comment_pr([review_item])

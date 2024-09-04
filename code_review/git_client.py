@@ -70,7 +70,8 @@ class GitClient(object):
                 "body": item["review_content"],
                 "position": item["position"]
             }
-            requests.post(pr_comment_url, data=payload, headers=headers)
+            res = requests.post(pr_comment_url, data=payload, headers=headers)
+            print(res)
 
     def list_pr_comment(self):
         pass

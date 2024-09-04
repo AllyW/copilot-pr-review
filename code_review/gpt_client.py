@@ -6,10 +6,12 @@
 
 import os
 import json
+import logging
 
 from openai import AzureOpenAI
 from code_review._const import AZURE_MODEL, MODEL_API_VERSION, MODEL_USER_ROLE
 from code_review._exceptions import InvalidOpenAIConfigException
+logger = logging.getLogger(__name__)
 
 
 def format_gpt_message(messages, contents, role=MODEL_USER_ROLE):
@@ -55,6 +57,7 @@ class GptClient(object):
             messages=messages
         )
         content = json.loads(gpt_result.to_json())
+        logger.warning("Get gpt review message: ", content)
         if "choices" not in content or not content["choices"]:
             return None
         return content["choices"][0]["message"]["content"]
