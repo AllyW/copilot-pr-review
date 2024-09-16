@@ -8,10 +8,12 @@ import os
 import requests
 import logging
 from code_review._exceptions import InvalidGitTokenMissingException, OtherConfigMissingException
+from code_review._const import PR_TAG
 
 logger = logging.getLogger(__name__)
 PR_COMMENTS_URL_TEMPLATE = "https://api.github.com/repos/{0}/{1}/pulls/{2}/comments"
 PR_DIFF_URL_TEMPLATE = "https://api.github.com/repos/{0}/{1}/compare/{2}...{3}"
+PR_COMMENT_URL_TEMPLATE = "https://api.github.com/repos/{0}/{1}/pulls/comments/{2}"
 
 
 class GitClient(object):
@@ -49,7 +51,7 @@ class GitClient(object):
         response = requests.get(pr_diff_url, headers=headers)
         return response.json()
 
-    def comment_pr(self, results):
+    def comment_pr(self, results: list[dict[str, str]]):
         """
         post https://api.github.com/repos/OWNER/REPO/pulls/{pull_number}/comments
         :param results:
@@ -66,14 +68,36 @@ class GitClient(object):
         }
         pr_comment_url = PR_COMMENTS_URL_TEMPLATE.format(self.owner, self.repo, pr_number)
         for item in results:
-            payload = {
-                "commit_id": item["commit_id"],
-                "path": item["file_path"],
-                "body": item["review_content"],
-                "position": item["position"]
-            }
-            requests.post(pr_comment_url, data=json.dumps(payload), headers=headers)
-
+            requests.post(pr_comment_url, data=json.dumps(item), headers=headers)
 
     def list_pr_comment(self):
-        pass
+        raw_event = os.environ.get("EVENT", None)
+        if not raw_event:
+            raise OtherConfigMissingException("Please provide pr detail info")
+        pr_event = json.loads(raw_event)
+        pr_number = pr_event["number"]
+        headers = {
+            "Accept": "application/vnd.github+json",
+            "authorization": f"Bearer {self.token}",
+        }
+        pr_comment_url = PR_COMMENTS_URL_TEMPLATE.format(self.owner, self.repo, pr_number)
+        response = requests.get(pr_comment_url, headers=headers)
+        return response.json()
+
+    def delete_batch_comments(self, comment_ids: list[int]):
+        headers = {
+            "Accept": "application/vnd.github+json",
+            "authorization": f"Bearer {self.token}",
+        }
+        for comment_id in comment_ids:
+            comment_url = PR_COMMENT_URL_TEMPLATE.format(self.owner, self.repo, comment_id)
+            requests.delete(comment_url, headers=headers)
+
+    def reset_pr_comment(self):
+        pre_comments = self.list_pr_comment()
+        deleted_comment_ids: list[int] = []
+        for comments in pre_comments:
+            logger.warning("Comments detail: {0}".format(comments))
+            if comments["body"].find(PR_TAG) != -1:
+                deleted_comment_ids.append(comments["id"])
+        self.delete_batch_comments(deleted_comment_ids)

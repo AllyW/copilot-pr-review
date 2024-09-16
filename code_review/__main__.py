@@ -8,7 +8,7 @@ import argparse
 from code_review.pr_processor import PRProcessor
 
 
-def main(job):
+def main(job: str) -> None:
     if job == "review":
         PRProcessor().review_pr()
     elif job == "reset":

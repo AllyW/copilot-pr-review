@@ -25,3 +25,5 @@ PR Summary:
 PR_DIFF_COMP_PROMPT = """
 Below is the diff info from a github pull requests, please make a simple code review, and find the places that can be refined, in a simple and concise way. Please describe the refinement with no more than 100 words
 """
+
+PR_TAG = " :mag_right: "

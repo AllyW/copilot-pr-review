@@ -23,6 +23,10 @@ inputs:
   pr_summary:
     description: "Whether draw a conclusion from whole pr diff"
     required: false
+  pr_reset:
+    description: "Whether clean last round pr reviews"
+    required: false
+    default: true
 runs:
   using: "composite"
   steps:
@@ -66,6 +70,7 @@ runs:
           TOKEN: ${{ inputs.AUTH_TOKEN }}
           code_suggest: ${{ inputs.code_suggest }}
           pr_summary: ${{ inputs.pr_summary }}
+          pr_reset: ${{ inputs.pr_reset }}
         run: |
           set -x
           pwd

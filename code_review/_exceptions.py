@@ -7,7 +7,7 @@
 
 class InvalidOpenAIConfigException(Exception):
     """Still an exception raised when uncommon things happen"""
-    def __init__(self, message):
+    def __init__(self, message: str):
         self.message = message
 
     def __str__(self):

@@ -7,6 +7,7 @@
 import os
 import json
 import logging
+from typing import Optional
 
 from openai import AzureOpenAI
 from code_review._const import AZURE_MODEL, MODEL_API_VERSION, MODEL_USER_ROLE
@@ -14,13 +15,13 @@ from code_review._exceptions import InvalidOpenAIConfigException
 logger = logging.getLogger(__name__)
 
 
-def format_gpt_message(messages, contents, role=MODEL_USER_ROLE):
+def format_gpt_message(messages: list[dict[str, str]], contents: list[str], role: str = MODEL_USER_ROLE) -> None:
     """
     fill request messages
-    :param messages:
-    :param role:
-    :param contents:
-    :return:
+    :param messages: messages altered for gpt review
+    :param role: message role
+    :param contents: message to be reviewed
+    :return: None
     """
     for content in contents:
         messages.append({
@@ -45,10 +46,10 @@ class GptClient(object):
             azure_endpoint=self.azure_endpoint
         )
 
-    def request_gpt(self, messages):
+    def request_gpt(self, messages: list[dict[str, str]]) -> Optional[str]:
         """
         request gpts with constructed messages
-        :param messages:
+        :param messages: messages for gpt review
         :return:
           review_content: str, the review response
         """
@@ -61,4 +62,4 @@ class GptClient(object):
             return None
         review_message = content["choices"][0]["message"]["content"]
         logger.info("gpt review message: {0}".format(review_message))
-        return review_message
+        return str(review_message)
