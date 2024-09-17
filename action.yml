@@ -26,7 +26,6 @@ inputs:
   pr_reset:
     description: "Whether clean last round pr reviews"
     required: false
-    default: true
 runs:
   using: "composite"
   steps:

@@ -21,7 +21,7 @@ class PRProcessor(object):
         self.gpt_manager = GptClient()
 
     def review_pr(self):
-        pr_comment_reset = os.environ.get("pr_reset", True)
+        pr_comment_reset = os.environ.get("pr_reset", False)
         if pr_comment_reset:
             self.git_manager.reset_pr_comment()
         pr_diffs = self.git_manager.get_pr_diff_files()
