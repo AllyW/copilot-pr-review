@@ -53,7 +53,7 @@ class PRProcessor(object):
             format_gpt_message(messages, [PR_DIFF_COMP_PROMPT], role=MODEL_USER_ROLE)
             format_gpt_message(messages, [patch], role=MODEL_USER_ROLE)
             gpt_resp = self.gpt_manager.request_gpt(messages)
-            if not gpt_resp:
+            if not gpt_resp or gpt_resp == "Review-Ignored":
                 continue
             review_item = {
                 "path": filename,
