@@ -24,7 +24,11 @@ def get_patch_position(patch_body: str) -> int | None:
         return
     start: int = int(new_start)
     found: bool = False
+    logger.warning("patch body: {0}".format(patch_body))
+    logger.warning("start line: {0}".format(start))
     for line in patch_body.split("\n"):
+        if line.find("-") == 0:
+            continue
         if not found or line.find("+") == 0:
             start += 1
             if line.find("+") == 0:
