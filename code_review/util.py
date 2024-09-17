@@ -33,5 +33,6 @@ def get_patch_position(patch_body: str) -> int | None:
             start += 1
             if line.find("+") == 0:
                 found = True
+            continue
         if found and line.find("+") != 0:
             return start - 2
