@@ -85,10 +85,7 @@ class PRProcessor(object):
             "path": pr_diffs["files"][0]["filename"],
             "commit_id": commit_id,
             "body": PR_TAG + gpt_resp,
-            "start_side": "RIGHT",
-            "side": "RIGHT",
-            "line": 0,
-            # "start_line": 10,
+            "position": 0,
         }
         logger.warning("summary review_item: {0}".format(json.dumps(review_item)))
         self.git_manager.comment_pr([review_item])

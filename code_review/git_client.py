@@ -91,13 +91,15 @@ class GitClient(object):
         }
         for comment_id in comment_ids:
             comment_url = PR_COMMENT_URL_TEMPLATE.format(self.owner, self.repo, comment_id)
-            requests.delete(comment_url, headers=headers)
+            res = requests.delete(comment_url, headers=headers)
+            logger.warning("Delete comment {0} res: {1}".format(comment_id, res))
 
     def reset_pr_comment(self):
         pre_comments = self.list_pr_comment()
         deleted_comment_ids: list[int] = []
-        for comments in pre_comments:
-            logger.warning("Comments detail: {0}".format(comments))
-            if comments["body"].find(PR_TAG) != -1:
-                deleted_comment_ids.append(comments["id"])
+        for comment in pre_comments:
+            logger.warning("Comments detail: {0}".format(comment))
+            if comment["body"].find(PR_TAG.strip()) != -1:
+                deleted_comment_ids.append(comment["id"])
+        logger.warning("Comment is to be deleted: {0}".format(deleted_comment_ids))
         self.delete_batch_comments(deleted_comment_ids)
