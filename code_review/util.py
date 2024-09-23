@@ -25,8 +25,8 @@ def get_patch_position(patch_body: str) -> int | None:
     start: int = int(new_start)
     last_add: int = 0
     line_add: int = 0
-    logger.warning("patch body: {0}".format(patch_body))
-    logger.warning("start line: {0}".format(start))
+    logger.info("patch body: {0}".format(patch_body))
+    logger.info("start line: {0}".format(start))
     for line in patch_body.split("\n"):
         if line.find("-") == 0:
             continue

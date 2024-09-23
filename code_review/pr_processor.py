@@ -6,6 +6,7 @@
 import json
 import os
 import logging
+import re
 from typing import Any
 from code_review.git_client import GitClient
 from code_review.gpt_client import GptClient, format_gpt_message
@@ -47,6 +48,9 @@ class PRProcessor(object):
             if filter_review_patch_pattern(patch):
                 logger.info("Patch filtered in {0}".format(filename))
                 continue
+            if filename.find("/tests/") != -1:
+                # todo add filter path pattern
+                continue
             status = diff_item.get("status", "")
             if status not in ["modified", "added"]:
                 continue
@@ -84,7 +88,7 @@ class PRProcessor(object):
             logger.warning("No pr diff files, pr summary ignored")
             return
         commit_id = pr_diffs["commits"][-1]["sha"]
-        pr_contents = [diff_item["patch"] for diff_item in pr_diffs["files"]]
+        pr_contents = [diff_item["patch"] for diff_item in pr_diffs["files"] if diff_item["filename"].find("/tests/") == -1]
         messages: list[dict[str, str]] = []
         format_gpt_message(messages, [PR_SUMMARY_PROMPT], role=MODEL_USER_ROLE)
         format_gpt_message(messages, ["\n".join(pr_contents)], role=MODEL_USER_ROLE)
@@ -112,7 +116,8 @@ class PRProcessor(object):
         logger.warning("Get result {0} from message: {1}".format(gpt_resp, review_comment))
         result = DEFAULT_EVALUATE_SCORE
         try:
-            result = int(gpt_resp)
+            score = re.findall(r'-?\d+\.?\d*', gpt_resp)
+            result = int(score[0])
         except Exception:  # pylint: disable=broad-except
             result = DEFAULT_EVALUATE_SCORE
         finally:
