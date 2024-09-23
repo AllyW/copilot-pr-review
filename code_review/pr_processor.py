@@ -10,7 +10,9 @@ from typing import Any
 from code_review.git_client import GitClient
 from code_review.gpt_client import GptClient, format_gpt_message
 from code_review.util import filter_review_patch_pattern, get_patch_position
-from code_review._const import MAX_PATCH_LIMITATION, PR_DIFF_COMP_PROMPT, PR_SUMMARY_PROMPT, MODEL_USER_ROLE, PR_TAG
+from code_review._const import MAX_PATCH_LIMITATION, \
+    PR_DIFF_COMP_PROMPT, PR_SUMMARY_PROMPT, PR_EVALUATE_PROMPT, PR_EVALUATE_SYSTEM_SET, PR_TAG, \
+    MODEL_USER_ROLE, MODEL_SYSTEM_ROLE, DEFAULT_EVALUATE_SCORE
 logger = logging.getLogger(__name__)
 
 
@@ -26,15 +28,17 @@ class PRProcessor(object):
             self.git_manager.reset_pr_comment()
         pr_diffs = self.git_manager.get_pr_diff_files()
         code_suggest = os.environ.get("code_suggest", False)
+        review_evaluate = os.environ.get("review_filter", True)
         if code_suggest:
-            self.__review_pr_code_line__(pr_diffs)
+            self.__review_pr_code_line__(pr_diffs, review_evaluate)
         pr_summary = os.environ.get("pr_summary", True)
         if pr_summary:
             self.__review_pr_summary__(pr_diffs)
 
-    def __review_pr_code_line__(self, pr_diffs: dict[str, Any]) -> None:
+    def __review_pr_code_line__(self, pr_diffs: dict[str, Any], review_evaluate: bool) -> None:
         if not pr_diffs or "files" not in pr_diffs or not pr_diffs["files"]:
             logger.warning("No pr diff files, code review ignored")
+            return
         commit_id = pr_diffs["commits"][-1]["sha"]
         review_res = []
         for diff_item in pr_diffs["files"]:
@@ -53,8 +57,13 @@ class PRProcessor(object):
             format_gpt_message(messages, [PR_DIFF_COMP_PROMPT], role=MODEL_USER_ROLE)
             format_gpt_message(messages, [patch], role=MODEL_USER_ROLE)
             gpt_resp = self.gpt_manager.request_gpt(messages)
-            if not gpt_resp or gpt_resp == "Review-Ignored":
+            if not gpt_resp:
                 continue
+            if review_evaluate:
+                res_score = self.__evaluate_review_comment__(gpt_resp)
+                if res_score < 0:
+                    logger.info("Unused review comment, ignored")
+                    continue
             review_item = {
                 "path": filename,
                 "commit_id": commit_id,
@@ -72,6 +81,7 @@ class PRProcessor(object):
     def __review_pr_summary__(self, pr_diffs: dict[str, Any]) -> None:
         if not pr_diffs or "files" not in pr_diffs or not pr_diffs["files"]:
             logger.warning("No pr diff files, pr summary ignored")
+            return
         commit_id = pr_diffs["commits"][-1]["sha"]
         pr_contents = [diff_item["patch"] for diff_item in pr_diffs["files"]]
         messages: list[dict[str, str]] = []
@@ -89,3 +99,21 @@ class PRProcessor(object):
         }
         logger.warning("summary review_item: {0}".format(json.dumps(review_item)))
         self.git_manager.comment_pr([review_item])
+
+    def __evaluate_review_comment__(self, review_comment: str) -> int:
+        if not review_comment:
+            logger.warning("No review comment, shouldn't be here")
+            return DEFAULT_EVALUATE_SCORE
+        messages: list[dict[str, str]] = []
+        evaluate_prompt = PR_EVALUATE_PROMPT + review_comment
+        format_gpt_message(messages, [PR_EVALUATE_SYSTEM_SET], role=MODEL_SYSTEM_ROLE)
+        format_gpt_message(messages, [evaluate_prompt], role=MODEL_USER_ROLE)
+        gpt_resp = self.gpt_manager.request_gpt(messages)
+        logger.warning("Get result {0} from message: {1}".format(gpt_resp, review_comment))
+        result = DEFAULT_EVALUATE_SCORE
+        try:
+            result = int(gpt_resp)
+        except Exception:  # pylint: disable=broad-except
+            result = DEFAULT_EVALUATE_SCORE
+        finally:
+            return result

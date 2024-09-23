@@ -23,16 +23,14 @@ def get_patch_position(patch_body: str) -> int | None:
         logger.warning("No git patch found, shouldn't be here")
         return
     start: int = int(new_start)
-    found: bool = False
+    last_add: int = 0
+    line_add: int = 0
     logger.warning("patch body: {0}".format(patch_body))
     logger.warning("start line: {0}".format(start))
     for line in patch_body.split("\n"):
         if line.find("-") == 0:
             continue
-        if not found or line.find("+") == 0:
-            start += 1
-            if line.find("+") == 0:
-                found = True
-            continue
-        if found and line.find("+") != 0:
-            return start - 2
+        line_add += 1
+        if line.find("+") == 0:
+            last_add = line_add
+    return start + last_add

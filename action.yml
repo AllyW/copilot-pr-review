@@ -26,6 +26,9 @@ inputs:
   pr_reset:
     description: "Whether clean last round pr reviews"
     required: false
+  review_filter:
+    description: "Whether filter review result by evaluation"
+    required: false
 runs:
   using: "composite"
   steps:
