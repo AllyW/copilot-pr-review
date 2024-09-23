@@ -11,8 +11,8 @@ from code_review.git_client import GitClient
 from code_review.gpt_client import GptClient, format_gpt_message
 from code_review.util import filter_review_patch_pattern, get_patch_position
 from code_review._const import MAX_PATCH_LIMITATION, \
-    PR_DIFF_COMP_PROMPT, PR_SUMMARY_PROMPT, PR_EVALUATE_PROMPT, PR_EVALUATE_SYSTEM_SET, PR_TAG, \
-    MODEL_USER_ROLE, MODEL_SYSTEM_ROLE, DEFAULT_EVALUATE_SCORE
+    PR_DIFF_COMP_PROMPT, PR_SUMMARY_PROMPT, PR_EVALUATE_PROMPT, PR_TAG, \
+    MODEL_USER_ROLE, DEFAULT_EVALUATE_SCORE
 logger = logging.getLogger(__name__)
 
 
@@ -74,6 +74,7 @@ class PRProcessor(object):
                 "line": get_patch_position(patch),
                 # "start_line": 10,
             }
+            logger.warning("code review patch: {0}".format(patch))
             logger.warning("code review_item: {0}".format(json.dumps(review_item)))
             review_res.append(review_item)
         self.git_manager.comment_pr(review_res)
@@ -106,7 +107,6 @@ class PRProcessor(object):
             return DEFAULT_EVALUATE_SCORE
         messages: list[dict[str, str]] = []
         evaluate_prompt = PR_EVALUATE_PROMPT + review_comment
-        format_gpt_message(messages, [PR_EVALUATE_SYSTEM_SET], role=MODEL_SYSTEM_ROLE)
         format_gpt_message(messages, [evaluate_prompt], role=MODEL_USER_ROLE)
         gpt_resp = self.gpt_manager.request_gpt(messages)
         logger.warning("Get result {0} from message: {1}".format(gpt_resp, review_comment))

@@ -33,4 +33,4 @@ def get_patch_position(patch_body: str) -> int | None:
         line_add += 1
         if line.find("+") == 0:
             last_add = line_add
-    return start + last_add
+    return start + last_add - 2
